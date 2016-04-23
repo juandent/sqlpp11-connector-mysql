@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <iostream>
 #include <vector>
 #include <sqlpp11/mysql/char_result.h>
@@ -63,14 +64,14 @@ namespace sqlpp
         {
           if (digitFlag)
           {
-            if (not std::isdigit(*text))
+			  if (not std::isdigit(*text, std::locale{}))
             {
               return false;
             }
           }
           else
           {
-            if (std::isdigit(*text) or *text == '\0')
+			  if (std::isdigit(*text, std::locale{}) or *text == '\0')
             {
               return false;
             }
@@ -168,7 +169,7 @@ namespace sqlpp
         std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
 
       _char_result_row.data = const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
-      _char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
+      _char_result_row.len = reinterpret_cast<size_t*>( mysql_fetch_lengths(_handle->mysql_res));
 
       return _char_result_row.data;
     }
